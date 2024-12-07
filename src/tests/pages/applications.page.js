@@ -1,10 +1,10 @@
 /**
  * Page object describing the applications page
  */
+const { ApplicationPage } = require("../pages/applications.page");
 const {AppPage} = require("./app.page");
-const {expect} = require("@playwright/test");
-const {applicationsSearchText} = require("../../../fixtures/fixtures");
 exports.ApplicationsPage = class ApplicationsPage extends AppPage {
+
 
     constructor(page) {
         super(page, "admin/prihlasky");
@@ -27,7 +27,7 @@ exports.ApplicationsPage = class ApplicationsPage extends AppPage {
     async getApplicationsTableRows() {
         await this.waitForTableToLoad();
         const rows = await this.applicationsTableRows.all();
-        return Promise.all(rows.map(async row => new TableRow(row)));
+        return Promise.all(rows.map(async row => new TableRow(this.page, row)));
     }
 
     async searchInApplicationsTable(text) {
@@ -39,39 +39,18 @@ exports.ApplicationsPage = class ApplicationsPage extends AppPage {
 
 class TableRow {
 
-    constructor(rowElement) {
+    constructor(page, rowElement) {
+        this.page = page;
         this.rowElement = rowElement;
     }
-
+     
     async getValues() {
-        const cells = await this.rowElement.locator("td").//all();
-        // const cols = await this.rowElement.getByRole("row").all();
-        // getByRole("row", { name: "0000 9999 27.06. - 30.06.2024" }).getByRole("gridcell").nth(1)
-
-        return {
-            name: await cells.nth(0).textContent(),
-            date: await cells.nth(1).textContent(),
-            paymentType: await cells.nth(2).textContent(),
-            toPay: await cells.nth(3).textContent()
+            const cells = await this.rowElement.locator("td");
+            return {
+                name: await cells.nth(0).textContent(),
+                date: await cells.nth(1).textContent(),
+                paymentType: await cells.nth(2).textContent(),
+                toPay: await cells.nth(3).textContent()
+        }
         }
     }
-
-    async getInfo() {
-        await this.rowElement.locator("[data-can='view']").click();
-        return new ApplicationInfoPage();
-    }
-
-}
-
-class ApplicationInfoPage {
-
-    get table() { return $(".table-twocols") }
-
-    async getDetail() {
-        return Promise.all(await (this.table.$$("tr")).map(async row => {
-            return Promise.all(await (row.$$("td")).map(async col => {
-                return await col.getText();
-            }));
-        }));
-    }
-}

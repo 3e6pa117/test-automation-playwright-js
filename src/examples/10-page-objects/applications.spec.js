@@ -57,6 +57,7 @@ test.describe('Applications Page', async () => {
 
         for (const row of filteredRows) {
             const values = await row.getValues();
+            console.log(values);
             await expect(values.name.toLowerCase()).toContain(applicationsSearchText.toLowerCase());
         }
     });

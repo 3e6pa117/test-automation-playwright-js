@@ -1,67 +1,80 @@
 /**
- * Lesson 6: Code organization: functions - Exercise 1
+ * Lesson 8: Code organization: Page Object Model - Exercise 1
  */
-import {username, password, userFullName} from "../fixtures/fixtures.js"
+import {username, password, userFullName, ApplicationTexts} from '../fixtures/fixtures.js'
 import {expect, test} from "@playwright/test";
-import {LoginPage} from "./pages/login.page.js";
-
-const pageTitle = "Přihlášení - Czechitas";
-
+//import {AppPage} from "./pages/app.page";
+import {LoginPage} from "./pages/login.page";
 
 
-test.describe("Login Page", async () => {
+test.describe('Login Page', async () => {
 
     test.beforeEach(async ({ page }) => {
         const loginPage = new LoginPage(page);
         await loginPage.open();
-        await test.expect(page).toHaveTitle(pageTitle);
-    
-        await expect(loginPage.emailFieldLocator, 'login page should be visible').toBeVisible();
-        await expect(loginPage.emailFieldLocator).toBeEnabled();
-
-        await expect(loginPage.passwordFieldLocator).toBeVisible();
-        await expect(loginPage.passwordFieldLocator).toBeEnabled();
-
-        await expect(loginPage.loginButtonLocator).toBeVisible();
-        await expect(loginPage.loginButtonLocator).toHaveText("Přihlásit"); 
+        await test.expect(page).toHaveTitle(ApplicationTexts.loginPage.title);
     });
 
-
-    test("should login with valid credentials", async ({page}) => {
-
+    test('should show login form', async ({ page }) => {
         const loginPage = new LoginPage(page);
+
+        await expect(loginPage.emailField, 'email field should be visible').toBeVisible();
+        await expect(loginPage.emailField, 'email field should be enabled').toBeEnabled();
+
+        await expect(loginPage.passwordField, 'password field should be visible').toBeVisible();
+        await expect(loginPage.passwordField, 'password field should be enabled').toBeEnabled();
+
+        await expect(loginPage.loginButton, 'login button should be visible').toBeVisible();
+        await expect(loginPage.loginButton, 'login button text should have text').toHaveText('Přihlásit');
+    });
+
+    test('should login with valid credentials', async ({page}) => {
+        const loginPage = new LoginPage(page);
+
+        // await loginPage.emailField.fill(username);
+        // await loginPage.passwordField.fill(password);
+        // await loginPage.loginButton.click();
+
         await loginPage.login(username, password);
-        
-        // await login(page, username, password);
 
-        await expect(loginPage.usernameDropdownLocator).toHaveText(userFullName);
-        // await expect(await getUserNameDropdown(page).textContent()).toEqual(userFullName);
-    
-
-        await test.step("should logout", async () => {
-            //const loginPage = new LoginPage(page);
-            await expect(loginPage.usernameDropdownLocator).toHaveText(userFullName);
-            await loginPage.logOut();
-            await expect(loginPage.rightNavbarLocator).toHaveText("Přihlásit");
-        });
+        await expect(loginPage.usernameDropdown).toHaveText(userFullName);
     });
 
-
-    test("should not login with invalid credentials", async ({ page }) => {
-      
+    test('should not login with invalid credentials', async ({ page }) => {
         const loginPage = new LoginPage(page);
-        await loginPage.login(username, "invalid");
-        // login(page, username, "invalid");
+        // const emailField = getEmailField(page);
+        // const passwordField = getPasswordField(page);
+        // const loginButton = getLoginButton(page);
 
-        //const toast = await getToast(page);
-        //const errorField = await getFieldError(page);
+        // await loginPage.emailField.fill(username);
+        // await loginPage.passwordField.fill('invalid');
+        // await loginPage.loginButton.click();
 
-        await expect(loginPage.toastLocator).toHaveText("Některé pole obsahuje špatně zadanou hodnotu");
-        await expect(loginPage.fieldErrorLocator).toHaveText("Tyto přihlašovací údaje neodpovídají žadnému záznamu.");
+        await loginPage.login(username, 'invalid');
 
-        await expect(loginPage.emailFieldLocator).toBeVisible();
-        await expect(loginPage.passwordFieldLocator).toBeVisible();
-        await expect(loginPage.loginButtonLocator).toBeVisible();
-    }); 
+        await expect(loginPage.toast).toHaveText("Některé pole obsahuje špatně zadanou hodnotu");
+        await expect(loginPage.fieldError).toHaveText("Tyto přihlašovací údaje neodpovídají žadnému záznamu.");
 
+        await expect(loginPage.emailField).toBeVisible();
+        await expect(loginPage.passwordField).toBeVisible();
+        await expect(loginPage.loginButton).toBeVisible();
+    });
+
+    test('should logout', async ({ page }) => {
+        const loginPage = new LoginPage(page);
+
+        // await loginPage.emailField.fill(username);
+        // await loginPage.passwordField.fill(password);
+        // await loginPage.loginButton.click();
+
+        await loginPage.login(username, password);
+
+        await expect(await loginPage.usernameDropdown).toHaveText(userFullName);
+
+        await loginPage.usernameDropdown.click();
+        await loginPage.logoutLink.click();
+
+        await expect(await loginPage.usernameDropdown).toBeVisible({ visible: false });
+        await expect(await loginPage.navbarRight).toHaveText('Přihlásit');
+    });
 });

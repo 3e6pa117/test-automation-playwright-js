@@ -38,6 +38,8 @@ test ("Wrong password", async ({ page }) => {
     const toastMessage = page.locator(".toast-message").textContent();
     const fieldError = await page.getByRole("alert").textContent(); 
     
+    await expect(fieldError).toHaveText("Heslo musí obsahovat minimálně 6 znaků, velké i malé písmeno a číslici");
+    
     console.log("Field error message is : "+ fieldError);
     console.log("Toast error message is : "+ toastMessage);
     //page.locator(".invalid-feedback");

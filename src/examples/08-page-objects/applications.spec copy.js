@@ -7,8 +7,8 @@ import {
     password,
     ApplicationTexts,
     applicationsSearchText, applicationsPageSize
-} from "../fixtures/fixtures.js"
-import {RegExp} from "../fixtures/regular-expressions";
+} from "../../fixtures/fixtures.js"
+import {RegExp} from "../../fixtures/regular-expressions";
 import {LoginPage} from "./pages/login.page";
 import {ApplicationsPage} from "./pages/applications.page";
 
@@ -61,8 +61,8 @@ test.describe("Applications Page", async () => {
 
         // iterate over filtered rows
         for (const row of filteredRows) {
-            const values = await row.getValues();
-            await expect(values.name.toLowerCase()).toContain(applicationsSearchText.toLowerCase());
+            const cells = row.locator("td");
+            await expect(await cells.nth(0).textContent()).toContain(applicationsSearchText);
         }
     });
 });
