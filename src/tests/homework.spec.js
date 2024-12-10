@@ -129,7 +129,7 @@ test.describe ("Registration page ", () => {
         };
 
         await fillRegistrationForm(page, usersRegistrationData);
-        page.screenshot({ path: "valid_user.png" });
+        await page.screenshot({ path: "valid_user.png" });
         const currentUser = await getCurrentUserLocator(page);
         await expect(currentUser, "current user should be displayed").toHaveText(usersRegistrationData.name);
 
